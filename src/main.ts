@@ -1,21 +1,22 @@
-import { once, showUI, emit } from '@create-figma-plugin/utilities'
+import { once, showUI, emit, on } from '@create-figma-plugin/utilities'
 import { weightedTargets } from './genome/constants/weightedTargets';
 import { SwatchMapModel } from './genome/models/SwatchMapModel';
 import { Mapper } from './genome/mapper';
-import { ImportTokensHandler } from './types'
+import { ImportGenomeHandler, ImportTokensHandler } from './types'
 import { returnVariableCollection, makeVariable, hexToFigmaColor, insertBlackWhiteNeutrals, zeroPad, COLLECTION, TINT } from './utilities'
+import { Matrix } from '../src/genome/modules/SwatchMatrix';
 
-const domain = "dcom"
+const domain = "gnm"
 
-const importPaletteTokens = (tokens: string) => {
+const importPaletteTokens = (data: string) => {
 
   const collection = returnVariableCollection(COLLECTION.PALETTE, true)
-  const swatches = Mapper.formatData(tokens)
+  const swatches = Mapper.formatData(data)
   const model = new SwatchMapModel(weightedTargets(1))
   const grid = Mapper.mapSwatchesToGrid(swatches, model)
 
   // Add Genome color tokens to the palette
-  grid.columns.map(column => {
+  grid!.columns.map(column => {
     insertBlackWhiteNeutrals(column)
     column.rows.map(swatch => {
       const variable = makeVariable(`${domain}/${swatch.semantic}/${swatch.weight}`, collection, "COLOR")
@@ -142,11 +143,54 @@ const setValuesForModes = (collection: VariableCollection, alias: VariableCollec
   )
 }
 
-export default function () {
-  once<ImportTokensHandler>('IMPORT_TOKENS', async (tokens: string) => {
-    let palette = await importPaletteTokens(tokens)
-    importContextualTokens(palette)
-    return
+const importPaletteColors = (grid: Matrix.Grid) => {
+
+  const collection = returnVariableCollection(COLLECTION.PALETTE, true)
+
+  // Add Genome color tokens to the palette
+  grid!.columns.map(column => {
+    // insertBlackWhiteNeutrals(column)
+    column.rows.map(swatch => {
+      const variable = makeVariable(`${domain}/${swatch.semantic}/${swatch.weight}`, collection, "COLOR")
+      variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(swatch.hex, null))
+    })
   })
+
+  // Add overlay color tokens to the palette
+  let tints = [TINT.LIGHTEN, TINT.DARKEN]
+  let alphas = TINT.ALPHAS;
+  tints.map(tint => {
+    const color = (tint === TINT.DARKEN ? "#000000" : "#FFFFFF")
+    alphas.map(alpha => {
+      const variable = makeVariable(`${domain}/${tint}/${zeroPad(alpha, 2)}a`, collection, "COLOR")
+      variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(color, alpha))
+    })
+  })
+
+  return collection
+
+}
+
+const loadFonts = async () => {
+  await figma.loadFontAsync({family: 'Inter', style: 'Regular'});
+  await figma.loadFontAsync({family: 'Inter', style: 'Bold'});
+};
+
+export default function () {
+
+  // on<ImportTokensHandler>('IMPORT_TOKENS', async (tokens: string) => {
+  //   console.log("IMPORT_TOKENS...")
+  //   let palette = await importPaletteTokens(tokens)
+  //   importContextualTokens(palette)
+  // })
+
+  on<ImportGenomeHandler>('IMPORT_GENOME', async (grid: Matrix.Grid) => {
+    console.log("IMPORT_GENOME...")
+    console.log(grid)
+    const palette = await importPaletteColors(grid)
+    await importContextualTokens(palette)
+    figma.closePlugin()
+  })
+
   showUI({ height: 300, width: 320 })
 }

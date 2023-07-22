@@ -1,7 +1,8 @@
 import {Matrix} from '../modules/SwatchMatrix';
 import {SwatchMapModel} from '../models/SwatchMapModel';
 
-export const removeUndefinedWeightSwatches = (grid: Matrix.Grid) => {
+export const removeUndefinedWeightSwatches = (grid: Matrix.Grid | undefined) => {
+    if (grid === undefined) return
     grid.columns.forEach(function (column, index) {
         let weightOptimizedSwatches = column.rows.filter((swatch) => {
             return swatch.weight !== undefined;
@@ -12,7 +13,8 @@ export const removeUndefinedWeightSwatches = (grid: Matrix.Grid) => {
     return grid;
 };
 
-export const mapSwatchesToGrid = (grid: Matrix.Grid, mapper: SwatchMapModel) => {
+export const mapSwatchesToGrid = (grid: Matrix.Grid | undefined, mapper: SwatchMapModel) => {
+    if (grid === undefined) return
     grid.columns.forEach(function (column) {
         let neutralTargets = column.rows[12].isNeutral;
         let targets = mapper.newTargets(neutralTargets);
