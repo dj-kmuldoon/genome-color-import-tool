@@ -1,23 +1,20 @@
 import { showUI, on } from '@create-figma-plugin/utilities'
-import { ImportGenomeHandler } from './types'
+import { ImportGenomeHandler } from '../app/types'
 import { returnVariableCollection, makeVariable, hexToFigmaColor, insertBlackWhiteNeutrals, zeroPad, COLLECTION, TINT } from './utilities'
-import { Matrix } from '../src/genome/modules/SwatchMatrix';
-
+import { Matrix } from '../genome/modules/SwatchMatrix';
+import { importPaletteColors, importContextualTokens } from './helpers/variables'
 const domain = "gnm"
 
 export default function () {
-
   on<ImportGenomeHandler>('IMPORT_GENOME', async (grid: Matrix.Grid) => {
-    console.log(grid)
     const palette = await importPaletteColors(grid)
     await importContextualTokens(palette)
     figma.closePlugin()
   })
-
   showUI({ height: 300, width: 320 })
 }
 
-const importContextualTokens = (alias: VariableCollection) => {
+const _importContextualTokens = (alias: VariableCollection) => {
 
   const collection = returnVariableCollection(COLLECTION.CONTEXTUAL, true)
 
@@ -117,27 +114,4 @@ const setValuesForModes = (collection: VariableCollection, alias: VariableCollec
     collection.modes[1].modeId, // Dark Mode
     figma.variables.createVariableAlias(makeVariable(`${domain}/${darkMode}`, alias, "COLOR"))
   )
-}
-
-const importPaletteColors = (grid: Matrix.Grid) => {
-  const collection = returnVariableCollection(COLLECTION.PALETTE, true)
-  grid!.columns.map(column => {
-    if (column.semantic === "neutral") insertBlackWhiteNeutrals(column)
-    column.rows.map(swatch => {
-      const variable = makeVariable(`${domain}/${swatch.semantic}/${swatch.weight}`, collection, "COLOR")
-      variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(swatch.hex, null))
-    })
-  })
-
-  // Add overlay color tokens to the palette
-  let tints = [TINT.LIGHTEN, TINT.DARKEN]
-  let alphas = TINT.ALPHAS;
-  tints.map(tint => {
-    const color = (tint === TINT.DARKEN ? "#000000" : "#FFFFFF")
-    alphas.map(alpha => {
-      const variable = makeVariable(`${domain}/${tint}/${zeroPad(alpha, 2)}a`, collection, "COLOR")
-      variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(color, alpha))
-    })
-  })
-  return collection
 }

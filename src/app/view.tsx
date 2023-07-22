@@ -13,10 +13,10 @@ import { emit, on } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
 
-import { Mapper } from '../src/genome/mapper';
-import { Matrix } from '../src/genome/modules/SwatchMatrix';
-import { SwatchMapModel } from '../src/genome/models/SwatchMapModel';
-import { weightedTargets } from '../src/genome/constants/weightedTargets'
+import { Mapper } from '../genome/mapper';
+import { Matrix } from '../genome/modules/SwatchMatrix';
+import { SwatchMapModel } from '../genome/models/SwatchMapModel';
+import { weightedTargets } from '../genome/constants/weightedTargets'
 
 import styles from './styles.css'
 import { ImportGenomeHandler, ImportTokensHandler, ReportErrorHandler, ReportSuccessHandler } from './types'

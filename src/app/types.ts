@@ -1,6 +1,5 @@
 import { EventHandler } from '@create-figma-plugin/utilities'
-import { Matrix } from '../src/genome/modules/SwatchMatrix';
-
+import { Matrix } from '../../src/genome/modules/SwatchMatrix';
 
 export interface ImportGenomeHandler extends EventHandler {
   name: 'IMPORT_GENOME'

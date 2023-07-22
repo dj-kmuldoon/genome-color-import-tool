@@ -8,8 +8,8 @@
     "editorType": ["figma"],
     "id": "",
     "name": "Genome Color Import Tool", 
-    "main": "src/main.ts",
-    "ui": "src/ui.tsx"
+    "main": "src/plugin/controller.ts",
+    "ui": "src/app/view.tsx"
   },
   "dependencies": {
     "@create-figma-plugin/ui": "^2.5.0",
