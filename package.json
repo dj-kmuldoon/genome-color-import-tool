@@ -1,0 +1,32 @@
+{
+  "name": "genome-color-import-tool",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Kevin Muldoon",
+  "license": "ISC",
+  "figma-plugin": {
+    "editorType": ["figma"],
+    "id": "",
+    "name": "Genome Color Import Tool", 
+    "main": "src/main.ts",
+    "ui": "src/ui.tsx"
+  },
+  "dependencies": {
+    "@create-figma-plugin/ui": "^2.5.0",
+    "@create-figma-plugin/utilities": "^2.5.0",
+    "chroma-js": "^2.4.2",
+    "preact": ">=10"
+  },
+  "devDependencies": {
+    "@create-figma-plugin/build": "^2.5.0",
+    "@create-figma-plugin/tsconfig": "^2.5.0",
+    "@figma/plugin-typings": "1.68.0",
+    "@types/chroma-js": "^2.4.0",
+    "@types/prismjs": "^1.26.0",
+    "typescript": ">=4"
+  },
+  "scripts": {
+    "build": "build-figma-plugin --typecheck --minify",
+    "watch": "build-figma-plugin --typecheck --watch"
+  }
+}
