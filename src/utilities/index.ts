@@ -49,7 +49,6 @@ export const makeVariable = (name: string, collection: VariableCollection, type:
     return variable
 }
 
-
 const shouldInsertContextualModes = (collection: VariableCollection) => {
     return (collection.name === COLLECTION.CONTEXTUAL && !hasDarkLightModes(collection))
 }
