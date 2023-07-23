@@ -48,9 +48,10 @@ function Plugin() {
   const handleImport = (event: Event) => {
     const optimization = parseInt(selectedOptimization)
     const map = new SwatchMapModel(weightedTargets(optimization))
-    let grid = Mapper.mapSwatchesToGrid(swatches, map)
-    grid = Mapper.removeUndefinedWeightSwatches(grid);
+    const grid = Mapper.mapSwatchesToGrid(swatches, map)
+    console.table(grid)
     emit<ImportGenomeHandler>('IMPORT_GENOME', grid!)
+    setSuccessMsg("Working to import all the things...")
   }
 
   const handleSelectedFiles = (files: Array<File>) => {
@@ -60,7 +61,6 @@ function Plugin() {
     reader.onloadend = () => {
       setFileImported(true)
       setSwatches(Mapper.formatData(reader.result));
-      // setSuccessMsg("File uploaded")
 
       // let swts = Mapper.formatData(reader.result)
       // const optimization = parseInt(selectedOptimization)

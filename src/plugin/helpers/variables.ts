@@ -6,7 +6,7 @@ const domain = "gnm"
 export const importPaletteColors = (grid: Matrix.Grid) => {
     const collection = returnVariableCollection(COLLECTION.PALETTE, true)
     grid!.columns.map(column => {
-      if (column.semantic === "neutral") insertBlackWhiteNeutrals(column)
+      // if (column.semantic === "neutral") insertBlackWhiteNeutrals(column)
       column.rows.map(swatch => {
         const variable = makeVariable(`${domain}/${swatch.semantic}/${swatch.weight}`, collection, "COLOR")
         variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(swatch.hex, null))

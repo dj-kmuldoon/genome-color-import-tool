@@ -39,6 +39,11 @@ export const getVariables = (collection: any) => {
     })
 }
 
+export const loadFonts = async () => {
+    await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
+    await figma.loadFontAsync({ family: 'Inter', style: 'Bold' });
+};
+
 export const makeVariable = (name: string, collection: VariableCollection, type: VariableResolvedDataType) => {
     let variable = getVariables(collection).find((item: { name: string }) => item.name === name);
     if (!variable) variable = figma.variables.createVariable(name, collection.id, type)
@@ -73,6 +78,21 @@ export const hexToFigmaColor = (hex: string, alpha: number | null) => {
         b: rgba[2] / 255,
         a: (alpha ? alpha / 100 : rgba[3])
     }
+}
+
+export const hexToRgb = (hex: string) => {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+        ? {
+            r: parseInt(result[1], 16) / 255,
+            g: parseInt(result[2], 16) / 255,
+            b: parseInt(result[3], 16) / 255,
+        }
+        : {
+            r: parseInt("0", 16) / 255,
+            g: parseInt("0", 16) / 255,
+            b: parseInt("0", 16) / 255,
+        }
 }
 
 export const insertBlackWhiteNeutrals = (column: any) => {
