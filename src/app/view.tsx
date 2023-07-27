@@ -19,7 +19,7 @@ import { SwatchMapModel } from '../genome/models/SwatchMapModel';
 import { weightedTargets } from '../genome/constants/weightedTargets'
 
 import styles from './styles.css'
-import { ImportGenomeHandler, ImportTokensHandler, ReportErrorHandler, ReportSuccessHandler } from './types'
+import { ImportCollateHandler, ImportGenomeHandler, ImportTokensHandler, ReportErrorHandler, ReportSuccessHandler } from './types'
 
 const optimizations: Array<DropdownOption> = [
   {value: '0', text: 'Non-optimized'},
@@ -45,13 +45,15 @@ function Plugin() {
     setSelectedOptimization(value)
   }
 
+const handleCollate = (event: Event) => {
+  emit<ImportCollateHandler>('IMPORT_COLLATE', null)
+}
+
   const handleImport = (event: Event) => {
     const optimization = parseInt(selectedOptimization)
     const map = new SwatchMapModel(weightedTargets(optimization))
     const grid = Mapper.mapSwatchesToGrid(swatches, map)
-    console.table(grid)
     emit<ImportGenomeHandler>('IMPORT_GENOME', grid!)
-    setSuccessMsg("Working to import all the things...")
   }
 
   const handleSelectedFiles = (files: Array<File>) => {
@@ -107,6 +109,8 @@ function Plugin() {
           </FileUploadButton>
         </FileUploadDropzone>
         <Button disabled={!fileImported} onClick={handleImport}>Import</Button>
+        <Button onClick={handleCollate}>Collate</Button>
+
       </Stack>
       <VerticalSpace space="small" />
     </Container>

@@ -1,4 +1,7 @@
 import chroma from 'chroma-js'
+import { figmaRGBToWebRGB, webRGBToFigmaRGB, figmaRGBToHex, hexToFigmaRGB } from './helpers/convertColor'
+
+export { figmaRGBToWebRGB, webRGBToFigmaRGB, figmaRGBToHex, hexToFigmaRGB, }
 
 export const TINT = {
     LIGHTEN: "lighten",

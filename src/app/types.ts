@@ -6,6 +6,10 @@ export interface ImportGenomeHandler extends EventHandler {
   handler: (code: Matrix.Grid) => void
 }
 
+export interface ImportCollateHandler extends EventHandler {
+  name: 'IMPORT_COLLATE'
+}
+
 export interface ImportTokensHandler extends EventHandler {
   name: 'IMPORT_TOKENS'
   handler: (code: string) => void

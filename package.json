@@ -5,9 +5,11 @@
   "author": "Kevin Muldoon",
   "license": "ISC",
   "figma-plugin": {
-    "editorType": ["figma"],
+    "editorType": [
+      "figma"
+    ],
     "id": "",
-    "name": "Genome Color Import Tool", 
+    "name": "Genome Color Import Tool",
     "main": "src/plugin/controller.ts",
     "ui": "src/app/view.tsx"
   },
@@ -15,6 +17,7 @@
     "@create-figma-plugin/ui": "^2.5.0",
     "@create-figma-plugin/utilities": "^2.5.0",
     "chroma-js": "^2.4.2",
+    "lodash": "^4.17.21",
     "preact": ">=10"
   },
   "devDependencies": {
