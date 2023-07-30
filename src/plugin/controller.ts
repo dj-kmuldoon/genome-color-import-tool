@@ -238,7 +238,7 @@ const insertSemanticPaletteVariables = () => {
 
       const p1 = xC.shift()
       const p2 = xC.join("")
-      const pathName = `base/${p1}/${p2}`
+      const pathName = `~/${p1}/${p2}`
       const variable = makeVariable(pathName, collection, "COLOR")
       const paint = (paintStyle.paints[0] as any)
       const hex = figmaRGBToHex(paint.color)
@@ -257,7 +257,7 @@ const insertNeutralPaletteVariables = () => {
 
   const localPalleteNeutralPaintStyles = localPaintStyles.filter((style) => style.name.includes("/neutral"));
 
-  const n000 = makeVariable("base/neutral/000", collection, "COLOR")
+  const n000 = makeVariable("~/neutral/000", collection, "COLOR")
   n000.setValueForMode(collection!.defaultModeId, hexToFigmaColor("#FFFFFF", null))
   processedColorStyles.push("NK-WSJ/palettes/white")
 
@@ -272,7 +272,7 @@ const insertNeutralPaletteVariables = () => {
     const xC = split_string.filter(Boolean);
     const p1 = xC.shift()
     const p2 = xC.join("")
-    const pathName = `base/${p1}/${p2}`
+    const pathName = `~/${p1}/${p2}`
 
     const variable = makeVariable(pathName, collection, "COLOR")
     const paint = (paintStyle.paints[0] as any)
@@ -282,7 +282,7 @@ const insertNeutralPaletteVariables = () => {
 
   })
 
-  const n950 = makeVariable("base/neutral/950", collection, "COLOR")
+  const n950 = makeVariable("~/neutral/950", collection, "COLOR")
   n950.setValueForMode(collection!.defaultModeId, hexToFigmaColor("#000000", null))
   processedColorStyles.push("NK-WSJ/palettes/black")
 
@@ -310,7 +310,7 @@ const insertLightenAlphasPaletteVariables = () => {
 
       const p1 = xC.shift()
       const p2 = xC.join("")
-      const pathName = `base/alpha/lighten/${p2}`
+      const pathName = `~/alpha/lighten/${p2}`
       const variable = makeVariable(pathName, collection, "COLOR")
       const paint = (paintStyle.paints[0] as any)
 
@@ -346,7 +346,7 @@ const insertDarkenAlphasPaletteVariables = () => {
 
       const p1 = xC.shift()
       const p2 = xC.join("")
-      const pathName = `base/alpha/darken/${p2}`
+      const pathName = `~/alpha/darken/${p2}`
       const variable = makeVariable(pathName, collection, "COLOR")
       const paint = (paintStyle.paints[0] as any)
 
@@ -403,7 +403,7 @@ const insertContextualVariables = (domain: string, subdomain: (string | null), c
     const split_string = pathName.split(/(\d+)/)
     const xC = split_string.filter(Boolean);
 
-    const pathNameParsed = xC.length > 1 ? `${subdomain ? subdomain.toLocaleLowerCase() : "base"}/${category}/${xC.join("/")}` : `base/${category}/~/${xC.join("/")}`
+    const pathNameParsed = xC.length > 1 ? `${subdomain ? subdomain.toLocaleLowerCase() : "~"}/${category}/${xC.join("/")}` : `~/${category}/~/${xC.join("/")}`
 
     const paint = (paintStyle.paints[0] as any)
     const hex = figmaRGBToHex(paint.color)
