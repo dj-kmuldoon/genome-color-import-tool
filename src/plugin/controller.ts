@@ -26,13 +26,90 @@ export default function () {
     insertContextualVariables("WSJ", "Opinion", "interface")
     insertContextualVariables("WSJ", "Opinion", "interactive")
 
-    console.log("All that remains...")
     const remainingPaintStyles = localPaintStyles.filter(item => !processedColorStyles.includes(item.name))
-    localPaintStyles.filter(item => !processedColorStyles.includes(item.name)).map(item => {
-      console.log("REMAINING PAINT STYLES ->", item.name)
+    console.log("All that remains...", remainingPaintStyles.map(item => item.name))
+
+    //
+    // Let's get a list of all the colors in palette variables and see if we can find
+    // a match for a given hex code...
+    //
+
+    const paletteCollection = getLocalVariableCollection("palette")
+    const contextualCollection = getLocalVariableCollection("contextual")
+    mapContextualToPaletteVariables(paletteCollection!, contextualCollection!)
+    return
+
+    const lightMode = contextualCollection!.modes![0].modeId
+    const darkMode = contextualCollection!.modes![1].modeId
+
+    contextualCollection!.variableIds.map(item => {
+
+      const variable = figma.variables.getVariableById(item)
+      const name = variable?.name
+
+      const lightModeHex = figmaRGBToHex((variable!.valuesByMode[lightMode] as RGBA))
+      const darkModeHex = figmaRGBToHex((variable!.valuesByMode[darkMode] as RGBA))
+
+      const lightModeMatches = findMatchingColorVariablesInCollection(lightModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
+      const darkModeMatches = findMatchingColorVariablesInCollection(darkModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
+
+      console.log(`name:${contextualCollection!.name}/${name} lightModeHex:${lightModeHex} (${lightModeMatches[0].name}) darkModeHex:${darkModeHex} (${darkModeMatches[0].name})`)
+
+    })
+  })
+
+  const mapContextualToPaletteVariables = (paletteCollection: VariableCollection, contextualCollection: VariableCollection) => {
+
+    const lightMode = contextualCollection!.modes![0].modeId
+    const darkMode = contextualCollection!.modes![1].modeId
+
+    contextualCollection!.variableIds.map(item => {
+
+      const variable = figma.variables.getVariableById(item)
+      const name = variable?.name
+
+      const lightModeHex = figmaRGBToHex((variable!.valuesByMode[lightMode] as RGBA))
+      const darkModeHex = figmaRGBToHex((variable!.valuesByMode[darkMode] as RGBA))
+
+      const lightModeMatches = findMatchingColorVariablesInCollection(lightModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
+      const darkModeMatches = findMatchingColorVariablesInCollection(darkModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
+
+      console.log(`name:${contextualCollection!.name}/${name} lightModeHex:${lightModeHex} (${lightModeMatches[0].name}) darkModeHex:${darkModeHex} (${darkModeMatches[0].name})`)
+
+    })
+  }
+
+  const findMatchingColorVariablesInCollection = (searchHex: string, collection: VariableCollection, mode: string | null) => {
+
+    if (mode === null) {mode = collection.modes![0].modeId}
+
+    const result: { id: string; name: string; hex: string; mode: string; }[] = []
+
+    collection.variableIds.map(item => {
+
+      const variable = figma.variables.getVariableById(item)
+      const name = variable?.name
+      const rgba = (variable!.valuesByMode[mode!] as RGBA)
+      const hex = figmaRGBToHex(rgba)
+
+      if (hex.endsWith(searchHex.toLowerCase())) {
+        // console.log(`a FOUND -> name:${collection.name}/${name} hex:${hex}`)
+        result.push({id: variable!.id,name: `${collection.name}/${name}`, hex: hex, mode: mode! } )
+      }
+
     })
 
-  })
+    return result
+
+  }
+
+
+const getLocalVariableCollection = (key: (string)) : VariableCollection | null => {
+  const localCollections = figma.variables.getLocalVariableCollections();
+  const collectionId = localCollections.filter(item => item.name === key)[0].id
+  return figma.variables.getVariableCollectionById(collectionId)
+}
+
 
   on<ImportGenomeHandler>('IMPORT_GENOME', async (grid: Matrix.Grid) => {
     await loadFonts()
@@ -116,7 +193,6 @@ const insertSemanticPaletteVariables = () => {
   const localPaintStyles = figma.getLocalPaintStyles();
   const localPalletePaintStyles = localPaintStyles.filter((style) => style.name.includes("/palettes/"));
   const localPalletePaintStylesNames = localPalletePaintStyles.map((style) => style.name)
-  // console.log("local palette paint style names ->", localPalletePaintStylesNames)
 
   const collection = createVariableCollection("palette", true)
 
@@ -140,9 +216,7 @@ const insertSemanticPaletteVariables = () => {
       variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(hex, null))
       variable.description = paintStyle.description
 
-    } else {
-      console.log(`${paintStyle.name}`)
-    }
+    } 
 
   })
 
@@ -176,7 +250,6 @@ const insertNeutralPaletteVariables = () => {
     const hex = figmaRGBToHex(paint.color)
     variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(hex, null))
     variable.description = paintStyle.description
-    console.log(paintStyleName)
 
   })
 
