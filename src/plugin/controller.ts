@@ -15,13 +15,12 @@ export default function () {
 
 
     // const domain = "Factiva"
-    const domain = "WSJ"
-    // const domain = "OpenFin"
+    // const domain = "WSJ"
+    const domain = "OpenFin"
 
     insertSemanticPaletteVariables()
     insertLiveCoverageDefinitiveColorVariables()
-
-    insertNeutralPaletteVariables()
+    insertNeutralPaletteVariables(domain)
     insertLightenAlphasPaletteVariables()
     insertDarkenAlphasPaletteVariables()
     insertSocialPaletteVariables()
@@ -43,25 +42,7 @@ export default function () {
     const paletteCollection = getLocalVariableCollection("palette")
     const contextualCollection = getLocalVariableCollection("contextual")
     mapContextualToPaletteVariables(paletteCollection!, contextualCollection!)
-    return
-
-    const lightMode = contextualCollection!.modes![0].modeId
-    const darkMode = contextualCollection!.modes![1].modeId
-
-    contextualCollection!.variableIds.map(item => {
-
-      const variable = figma.variables.getVariableById(item)
-      const name = variable?.name
-
-      const lightModeHex = figmaRGBToHex((variable!.valuesByMode[lightMode] as RGBA))
-      const darkModeHex = figmaRGBToHex((variable!.valuesByMode[darkMode] as RGBA))
-
-      const lightModeMatches = findMatchingColorVariablesInCollection(lightModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
-      const darkModeMatches = findMatchingColorVariablesInCollection(darkModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
-
-      console.log(`name:${contextualCollection!.name}/${name} lightModeHex:${lightModeHex} (${lightModeMatches[0].name}) darkModeHex:${darkModeHex} (${darkModeMatches[0].name})`)
-
-    })
+   
   })
 
   const mapContextualToPaletteVariables = (paletteCollection: VariableCollection, contextualCollection: VariableCollection) => {
@@ -251,7 +232,7 @@ const insertSemanticPaletteVariables = () => {
 
 }
 
-const insertNeutralPaletteVariables = () => {
+const insertNeutralPaletteVariables = (domain: string) => {
   const localPaintStyles = figma.getLocalPaintStyles();
   const collection = createVariableCollection("palette", true)
 
@@ -259,7 +240,7 @@ const insertNeutralPaletteVariables = () => {
 
   const n000 = makeVariable("~/neutral/000", collection, "COLOR")
   n000.setValueForMode(collection!.defaultModeId, hexToFigmaColor("#FFFFFF", null))
-  processedColorStyles.push("NK-WSJ/palettes/white")
+  processedColorStyles.push(`NK-${domain}/palettes/white`)
 
   localPalleteNeutralPaintStyles.map((paintStyle, index) => {
 
@@ -284,7 +265,7 @@ const insertNeutralPaletteVariables = () => {
 
   const n950 = makeVariable("~/neutral/950", collection, "COLOR")
   n950.setValueForMode(collection!.defaultModeId, hexToFigmaColor("#000000", null))
-  processedColorStyles.push("NK-WSJ/palettes/black")
+  processedColorStyles.push(`NK-${domain}/palettes/black`)
 
 }
 
