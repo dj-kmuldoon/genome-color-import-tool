@@ -12,6 +12,12 @@ let processedColorStyles: string[] = []
 export default function () {
 
   on<ImportCollateHandler>('IMPORT_COLLATE', async (grid: Matrix.Grid) => {
+
+
+    // const domain = "Factiva"
+    const domain = "WSJ"
+    // const domain = "OpenFin"
+
     insertSemanticPaletteVariables()
     insertLiveCoverageDefinitiveColorVariables()
 
@@ -20,11 +26,11 @@ export default function () {
     insertDarkenAlphasPaletteVariables()
     insertSocialPaletteVariables()
 
-    insertContextualVariables("WSJ", null, "interface")
-    insertContextualVariables("WSJ", null, "ink")
-    insertContextualVariables("WSJ", null, "interactive")
-    insertContextualVariables("WSJ", "Opinion", "interface")
-    insertContextualVariables("WSJ", "Opinion", "interactive")
+    insertContextualVariables(domain, null, "interface")
+    insertContextualVariables(domain, null, "ink")
+    insertContextualVariables(domain, null, "interactive")
+    insertContextualVariables(domain, "Opinion", "interface")
+    insertContextualVariables(domain, "Opinion", "interactive")
 
     const remainingPaintStyles = localPaintStyles.filter(item => !processedColorStyles.includes(item.name))
     console.log("All that remains...", remainingPaintStyles.map(item => item.name))
@@ -73,6 +79,29 @@ export default function () {
 
       const lightModeMatches = findMatchingColorVariablesInCollection(lightModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
       const darkModeMatches = findMatchingColorVariablesInCollection(darkModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
+
+      let lightModeVariableId =  lightModeMatches.length ? lightModeMatches[0].id : null
+      let darkModeVariableId =  darkModeMatches.length ? darkModeMatches[0].id : null
+
+      if (lightModeVariableId) {
+        const variableAlias = figma.variables.getVariableById(lightModeVariableId)
+        if (variableAlias) {
+          variable!.setValueForMode(
+            lightMode, 
+            figma.variables.createVariableAlias(variableAlias)
+          )
+        }
+      }
+
+      if (darkModeVariableId) {
+        const variableAlias = figma.variables.getVariableById(darkModeVariableId)
+        if (variableAlias) {
+          variable!.setValueForMode(
+            darkMode, 
+            figma.variables.createVariableAlias(variableAlias)
+          )
+        }
+      }
 
       console.log(`name:${contextualCollection!.name}/${name} lightModeHex:${lightModeHex} (${lightModeMatches[0].name}) darkModeHex:${darkModeHex} (${darkModeMatches[0].name})`)
 
