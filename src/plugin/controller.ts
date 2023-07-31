@@ -13,16 +13,20 @@ export default function () {
 
   on<ImportCollateHandler>('IMPORT_COLLATE', async (grid: Matrix.Grid) => {
 
-
     // const domain = "Factiva"
-    // const domain = "WSJ"
-    const domain = "OpenFin"
+    const domain = "WSJ"
+    // const domain = "OpenFin"
 
     insertSemanticPaletteVariables()
-    insertLiveCoverageDefinitiveColorVariables()
     insertNeutralPaletteVariables(domain)
+
+    insertLiveCoverageDefinitiveColorVariables()
+    insertOpenFinDefinitiveColorVariables()
+    insertFactivaDefinitiveColorVariables()
+
     insertLightenAlphasPaletteVariables()
     insertDarkenAlphasPaletteVariables()
+
     insertSocialPaletteVariables()
 
     insertContextualVariables(domain, null, "interface")
@@ -42,19 +46,32 @@ export default function () {
     const paletteCollection = getLocalVariableCollection("palette")
     const contextualCollection = getLocalVariableCollection("contextual")
     mapContextualToPaletteVariables(paletteCollection!, contextualCollection!)
+
+    setVariablesHiddenFromPublishing(false)
    
   })
+
+  const setVariablesHiddenFromPublishing = (hidden: boolean) => {
+    const localCollections = figma.variables.getLocalVariableCollections();
+    localCollections.map(collectionItem => {
+      const collection = getLocalVariableCollection(collectionItem.name)
+      collection!.variableIds.map((variableId) => {
+        let variable = figma.variables.getVariableById(variableId) as any
+        variable.hiddenFromPublishing = hidden
+      })
+    })
+  }
+
 
   const mapContextualToPaletteVariables = (paletteCollection: VariableCollection, contextualCollection: VariableCollection) => {
 
     const lightMode = contextualCollection!.modes![0].modeId
     const darkMode = contextualCollection!.modes![1].modeId
 
-    contextualCollection!.variableIds.map(item => {
-
+    contextualCollection!.variableIds.map((item, index) => {
+   
       const variable = figma.variables.getVariableById(item)
       const name = variable?.name
-
       const lightModeHex = figmaRGBToHex((variable!.valuesByMode[lightMode] as RGBA))
       const darkModeHex = figmaRGBToHex((variable!.valuesByMode[darkMode] as RGBA))
 
@@ -62,30 +79,34 @@ export default function () {
       const darkModeMatches = findMatchingColorVariablesInCollection(darkModeHex, paletteCollection!, paletteCollection!.modes![0].modeId)
 
       let lightModeVariableId =  lightModeMatches.length ? lightModeMatches[0].id : null
-      let darkModeVariableId =  darkModeMatches.length ? darkModeMatches[0].id : null
+      let darkModeVariableId =  darkModeMatches.length ? darkModeMatches[0].id : null 
 
       if (lightModeVariableId) {
         const variableAlias = figma.variables.getVariableById(lightModeVariableId)
+        if (!variableAlias) console.log("No idea what this variableAlias is!!!")
         if (variableAlias) {
           variable!.setValueForMode(
             lightMode, 
             figma.variables.createVariableAlias(variableAlias)
           )
         }
+      } else {
+        console.log("Light mode had NO matches for ", lightModeHex)
       }
 
       if (darkModeVariableId) {
         const variableAlias = figma.variables.getVariableById(darkModeVariableId)
+        if (!variableAlias) console.log("No idea what this variableAlias is!!!")
         if (variableAlias) {
           variable!.setValueForMode(
             darkMode, 
             figma.variables.createVariableAlias(variableAlias)
           )
         }
+      } else {
+        console.log("Dark mode had NO matches for ", darkModeHex)
       }
-
-      console.log(`name:${contextualCollection!.name}/${name} lightModeHex:${lightModeHex} (${lightModeMatches[0].name}) darkModeHex:${darkModeHex} (${darkModeMatches[0].name})`)
-
+ 
     })
   }
 
@@ -103,7 +124,6 @@ export default function () {
       const hex = figmaRGBToHex(rgba)
 
       if (hex.endsWith(searchHex.toLowerCase())) {
-        // console.log(`a FOUND -> name:${collection.name}/${name} hex:${hex}`)
         result.push({id: variable!.id,name: `${collection.name}/${name}`, hex: hex, mode: mode! } )
       }
 
@@ -112,7 +132,6 @@ export default function () {
     return result
 
   }
-
 
 const getLocalVariableCollection = (key: (string)) : VariableCollection | null => {
   const localCollections = figma.variables.getLocalVariableCollections();
@@ -136,6 +155,10 @@ const getLocalVariableCollection = (key: (string)) : VariableCollection | null =
 const makeVariable = (name: string, collection: VariableCollection, type: VariableResolvedDataType) => {
   let variable = getVariables(collection).find((item: { name: string }) => item.name === name);
   if (!variable) variable = figma.variables.createVariable(name, collection.id, type)
+
+  // variable.hiddenFromPublishing = true
+
+
   // if (shouldInsertContextualModes(collection)) {
   //     collection.renameMode(collection!.modes[0].modeId, MODE.LIGHT)
   //     collection.addMode(MODE.DARK)
@@ -166,6 +189,78 @@ const hexToFigmaColor = (hex: string, alpha: number | null) => {
     b: rgba[2] / 255,
     a: (alpha ? alpha / 100 : rgba[3])
   }
+}
+
+const insertFactivaDefinitiveColorVariables = () => {
+  const localPaintStyles = figma.getLocalPaintStyles();
+  const definitiveColors = ["Lightgreen050", "purple080", "purple090", "amber080", "blue010", "blue020", "blue080", "blue090", "steel060", "steel070", "steel080", "steel095"]
+
+  const styles = localPaintStyles.filter(item => {
+    let itemName = item.name.split("/").slice(-1)[0]
+    itemName = itemName.toLowerCase()
+    console.log("itemName ->", itemName)
+    return (definitiveColors.includes(itemName.toLowerCase()))
+  })
+
+  const collection = createVariableCollection("definitive", true)
+
+  styles.map((paintStyle) => {
+
+    const paintStyleName = paintStyle!.name
+    const xA = paintStyleName.split("/")
+    const xB = xA[xA.length - 1];
+    const split_string = xB.split(/(\d+)/)
+    const xC = split_string.filter(Boolean);
+
+    processedColorStyles.push(paintStyleName)
+
+    const p1 = xC.shift()
+    const p2 = xC.join("")
+    let pathName = p2 ? `~/${p1}/${p2}` : `~/${p1}`; pathName = pathName.toLowerCase()
+
+    const variable = makeVariable(pathName, collection, "COLOR")
+
+    const paint = (paintStyle!.paints[0] as any)
+    const hex = figmaRGBToHex(paint.color)
+    variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(hex, null))
+    variable.description = paintStyle!.description
+
+  })
+}
+
+const insertOpenFinDefinitiveColorVariables = () => {
+
+  const localPaintStyles = figma.getLocalPaintStyles();
+  const localPalletePaintStyles = localPaintStyles.filter((style) => style.name.includes("definitive") );
+  const localPalletePaintStylesNames = localPalletePaintStyles.map((style) => style.name)
+
+  console.log("FILTERED PALETTE STYLES FOR OPEN FIN DEFINITIVE...", localPalletePaintStyles)
+
+  const collection = createVariableCollection("definitive", true)
+
+  localPalletePaintStyles.map((paintStyle) => {
+
+    const paintStyleName = paintStyle.name
+    const xA = paintStyleName.split("/")
+    const xB = xA[xA.length - 1];
+    const split_string = xB.split(/(\d+)/)
+    const xC = split_string.filter(Boolean);
+
+    processedColorStyles.push(paintStyleName)
+
+    const p1 = xC.shift()
+    const p2 = xC.join("")
+    let pathName = p2 ? `~/${p1}/${p2}` : `~/${p1}`; 
+    pathName = pathName.toLowerCase()
+
+    const variable = makeVariable(pathName, collection, "COLOR")
+
+    const paint = (paintStyle.paints[0] as any)
+    const hex = figmaRGBToHex(paint.color)
+    variable.setValueForMode(collection!.defaultModeId, hexToFigmaColor(hex, null))
+    variable.description = paintStyle.description
+
+  })
 }
 
 const insertLiveCoverageDefinitiveColorVariables = () => {

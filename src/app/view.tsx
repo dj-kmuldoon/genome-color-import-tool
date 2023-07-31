@@ -91,7 +91,7 @@ const handleCollate = (event: Event) => {
     <Container space="medium">
       <VerticalSpace space="small" />
       <Stack space="small">
-        {successMsg && <Banner icon={<IconCheckCircle32 />} variant="success">{successMsg}</Banner>}
+        {/* {successMsg && <Banner icon={<IconCheckCircle32 />} variant="success">{successMsg}</Banner>}
         {errorMsg && <Banner icon={<IconWarning32 />} variant="warning">{errorMsg}</Banner>}
         <p><b>Select Optimization:</b></p>
         <Dropdown onChange={handleSelectedOptimization} options={optimizations} value={selectedOptimization} variant="border"/>
@@ -108,9 +108,8 @@ const handleCollate = (event: Event) => {
             Select gcs file
           </FileUploadButton>
         </FileUploadDropzone>
-        <Button disabled={!fileImported} onClick={handleImport}>Import</Button>
+        <Button disabled={!fileImported} onClick={handleImport}>Import</Button> */}
         <Button onClick={handleCollate}>Collate</Button>
-
       </Stack>
       <VerticalSpace space="small" />
     </Container>
